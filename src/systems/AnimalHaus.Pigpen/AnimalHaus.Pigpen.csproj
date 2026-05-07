@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\AnimalHaus.Shared.Core\AnimalHaus.Shared.Core.csproj" />
+    <ProjectReference Include="..\..\shared\AnimalHaus.Shared.Utils\AnimalHaus.Shared.Utils.csproj" />
+    <ProjectReference Include="..\..\shared\AnimalHaus.Shared.Messaging\AnimalHaus.Shared.Messaging.csproj" />
+    <ProjectReference Include="..\..\contracts\AnimalHaus.Contracts\AnimalHaus.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
