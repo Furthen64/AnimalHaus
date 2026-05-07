@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AnimalHaus.Shared.Core\AnimalHaus.Shared.Core.csproj" />
+    <ProjectReference Include="..\AnimalHaus.Shared.Utils\AnimalHaus.Shared.Utils.csproj" />
+    <ProjectReference Include="..\..\contracts\AnimalHaus.Contracts\AnimalHaus.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetMQ" Version="4.0.4.1" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
