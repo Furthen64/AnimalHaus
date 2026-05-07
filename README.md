@@ -24,9 +24,9 @@ dotnet test AnimalHaus.sln
 Then run each system in a separate terminal:
 
 ```bash
-dotnet run --project /home/runner/work/AnimalHaus/AnimalHaus/src/systems/AnimalHaus.Pigpen/AnimalHaus.Pigpen.csproj
-dotnet run --project /home/runner/work/AnimalHaus/AnimalHaus/src/systems/AnimalHaus.Barn/AnimalHaus.Barn.csproj
-dotnet run --project /home/runner/work/AnimalHaus/AnimalHaus/src/systems/AnimalHaus.Tractor/AnimalHaus.Tractor.csproj
+dotnet run --project src/systems/AnimalHaus.Pigpen/AnimalHaus.Pigpen.csproj
+dotnet run --project src/systems/AnimalHaus.Barn/AnimalHaus.Barn.csproj
+dotnet run --project src/systems/AnimalHaus.Tractor/AnimalHaus.Tractor.csproj
 ```
 
 See `docs/architecture.md` and `docs/message-contracts.md` for the system topology and message conventions.
