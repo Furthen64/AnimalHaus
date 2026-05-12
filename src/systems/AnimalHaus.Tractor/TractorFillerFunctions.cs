@@ -6,7 +6,7 @@ public static class TractorFillerFunctions
 
     public static int NormalizeFuel(int fuelLevel) => Math.Clamp(fuelLevel, 0, 100);
 
-    public static int ApplyMaintenanceBuffer(int fuelLevel) => Math.Max(0, fuelLevel - MaintenanceBuffer());
+    public static int ApplyMaintenanceBuffer(int fuelLevel) => Math.Max(0, NormalizeFuel(fuelLevel) - MaintenanceBuffer());
 
     private static int MaintenanceBuffer() => 10;
 }
