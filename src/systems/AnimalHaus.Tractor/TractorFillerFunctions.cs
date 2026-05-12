@@ -2,7 +2,7 @@ namespace AnimalHaus.Tractor;
 
 public static class TractorFillerFunctions
 {
-    public static int BuildTaskReadiness(int fuelLevel) => ApplyMaintenanceBuffer(NormalizeFuel(fuelLevel));
+    public static int BuildTaskReadiness(int fuelLevel) => ApplyMaintenanceBuffer(fuelLevel);
 
     public static int NormalizeFuel(int fuelLevel) => Math.Clamp(fuelLevel, 0, 100);
 
