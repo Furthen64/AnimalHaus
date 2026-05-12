@@ -63,7 +63,17 @@ public sealed class BarnHost
     {
         while (subscriber.TryReceive(out var envelope))
         {
-            StructuredLog.Write(config.SystemName, "event", envelope.MessageType, tick, envelope.Metadata.CorrelationId);
+            switch (envelope.MessageType)
+            {
+                case nameof(MarketPriceChanged):
+                    var marketPriceChanged = JsonMessageSerializer.Deserialize<MarketPriceChanged>(envelope.PayloadJson);
+                    StructuredLog.Write(config.SystemName, "event", nameof(MarketPriceChanged), tick, envelope.Metadata.CorrelationId, marketPriceChanged);
+                    break;
+
+                default:
+                    StructuredLog.Write(config.SystemName, "event", envelope.MessageType, tick, envelope.Metadata.CorrelationId);
+                    break;
+            }
         }
     }
 
