@@ -7,13 +7,15 @@ namespace AdministrationApp;
 
 public sealed class MainForm : Form
 {
+    private const string SolutionFileName = "AnimalHaus.sln";
+
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true
     };
 
-    private static readonly Regex PortSuffixRegex = new("^(?<prefix>.*:)(?<port>\\d+)(?<suffix>.*)$", RegexOptions.Compiled);
+    private static readonly Regex PortSegmentRegex = new("^(?<prefix>.*:)(?<port>\\d+)(?<suffix>.*)$", RegexOptions.Compiled);
 
     private readonly ComboBox _projectCombo = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 360 };
     private readonly Button _reloadButton = new() { Text = "Reload Projects", AutoSize = true };
@@ -30,7 +32,7 @@ public sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "AdministrationApp";
+        Text = "AdministrationApp - Endpoint Settings";
         MinimumSize = new Size(960, 640);
         StartPosition = FormStartPosition.CenterScreen;
 
@@ -171,7 +173,12 @@ public sealed class MainForm : Form
         try
         {
             var json = File.ReadAllText(project.SettingsFilePath);
-            var config = JsonSerializer.Deserialize<SystemConfiguration>(json, SerializerOptions) ?? new SystemConfiguration();
+            var config = JsonSerializer.Deserialize<SystemConfiguration>(json, SerializerOptions);
+            if (config is null)
+            {
+                _statusLabel.Text = $"Failed loading {project.DisplayName}: Invalid JSON configuration.";
+                return;
+            }
 
             _selectedProject = project;
             _currentConfiguration = config;
@@ -307,7 +314,7 @@ public sealed class MainForm : Form
         var current = new DirectoryInfo(startPath);
         while (current is not null)
         {
-            var solutionPath = Path.Combine(current.FullName, "AnimalHaus.sln");
+            var solutionPath = Path.Combine(current.FullName, SolutionFileName);
             if (File.Exists(solutionPath))
             {
                 return current.FullName;
@@ -321,7 +328,7 @@ public sealed class MainForm : Form
 
     private static string ExtractPort(string endpoint)
     {
-        var match = PortSuffixRegex.Match(endpoint);
+        var match = PortSegmentRegex.Match(endpoint);
         return match.Success ? match.Groups["port"].Value : string.Empty;
     }
 
@@ -333,7 +340,7 @@ public sealed class MainForm : Form
 
     private static string ReplacePort(string endpoint, int port)
     {
-        var match = PortSuffixRegex.Match(endpoint);
+        var match = PortSegmentRegex.Match(endpoint);
         if (!match.Success)
         {
             return endpoint;
