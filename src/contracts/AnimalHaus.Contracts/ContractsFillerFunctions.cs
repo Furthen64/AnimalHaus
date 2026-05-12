@@ -6,5 +6,5 @@ public static class ContractsFillerFunctions
 
     public static string NormalizeEntityName(string entityName) => entityName.Trim().ToLowerInvariant();
 
-    public static int Version() => 1;
+    public static string Version() => "1";
 }
