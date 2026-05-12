@@ -30,3 +30,4 @@ Every message is wrapped in a shared envelope that includes:
 - `TractorDispatched`
 - `FuelLow`
 - `TaskCompleted`
+- `MarketPriceChanged`

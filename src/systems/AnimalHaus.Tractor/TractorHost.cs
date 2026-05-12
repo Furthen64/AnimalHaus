@@ -22,6 +22,9 @@ public sealed class TractorHost
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         using var publisher = new NetMqPublisher(config.Messaging.PubEndpoint);
+        using var subscriber = new NetMqSubscriber(
+            config.Messaging.Peers.Values.Select(static peer => peer.PubEndpoint),
+            ["marketplace.events."]);
         using var commandServer = new NetMqCommandServer(config.Messaging.CommandEndpoint);
 
         StructuredLog.Write(config.SystemName, "lifecycle", "started", data: new { fuelModule.FuelLevel });
@@ -30,6 +33,7 @@ public sealed class TractorHost
         for (var tick = 1; tick <= config.Simulation.MaxTicks; tick++)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            DrainEvents(subscriber, tick);
             DrainCommands(commandServer, publisher, tick);
 
             if (haulingModule.TryCompleteTick(out var completedTask))
@@ -55,6 +59,20 @@ public sealed class TractorHost
         }
 
         StructuredLog.Write(config.SystemName, "lifecycle", "stopped");
+    }
+
+    private void DrainEvents(NetMqSubscriber subscriber, int tick)
+    {
+        while (subscriber.TryReceive(out var envelope))
+        {
+            switch (envelope.MessageType)
+            {
+                case nameof(MarketPriceChanged):
+                    var marketPriceChanged = JsonMessageSerializer.Deserialize<MarketPriceChanged>(envelope.PayloadJson);
+                    StructuredLog.Write(config.SystemName, "event", nameof(MarketPriceChanged), tick, envelope.Metadata.CorrelationId, marketPriceChanged);
+                    break;
+            }
+        }
     }
 
     private void DrainCommands(NetMqCommandServer commandServer, NetMqPublisher publisher, int tick)

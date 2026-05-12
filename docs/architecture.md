@@ -1,10 +1,11 @@
 # AnimalHaus Architecture
 
-AnimalHaus is organized as three independent .NET 8 processes:
+AnimalHaus is organized as four independent .NET 8 processes:
 
 - `AnimalHaus.Pigpen`
 - `AnimalHaus.Barn`
 - `AnimalHaus.Tractor`
+- `AnimalHaus.MarketPlace`
 
 Each system owns its own modules and configuration while sharing common primitives through:
 
@@ -18,6 +19,7 @@ Each system owns its own modules and configuration while sharing common primitiv
 - Every system binds a PUB socket for domain events.
 - Every system binds a REP socket for commands.
 - Systems subscribe to peer PUB endpoints and issue commands to peer REP endpoints.
+- `AnimalHaus.MarketPlace` publishes commodity price events (e.g., eggs and milk) and other systems subscribe to `marketplace.events.*`.
 - Topic names use the convention `<system>.events.<EventName>` and `<system>.commands.<CommandName>`.
 
 ## Deterministic scenario

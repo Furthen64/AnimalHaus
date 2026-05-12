@@ -30,7 +30,7 @@ public sealed class PigpenHost
         using var publisher = new NetMqPublisher(config.Messaging.PubEndpoint);
         using var subscriber = new NetMqSubscriber(
             config.Messaging.Peers.Values.Select(static peer => peer.PubEndpoint),
-            ["barn.events.", "tractor.events."]);
+            ["barn.events.", "tractor.events.", "marketplace.events."]);
         using var commandServer = new NetMqCommandServer(config.Messaging.CommandEndpoint);
         var commandClient = new NetMqCommandClient();
 
@@ -119,6 +119,11 @@ public sealed class PigpenHost
                         deliveredFeed = 0;
                         StructuredLog.Write(config.SystemName, "event", nameof(TaskCompleted), tick, envelope.Metadata.CorrelationId, taskCompleted);
                     }
+                    break;
+
+                case nameof(MarketPriceChanged):
+                    var marketPriceChanged = JsonMessageSerializer.Deserialize<MarketPriceChanged>(envelope.PayloadJson);
+                    StructuredLog.Write(config.SystemName, "event", nameof(MarketPriceChanged), tick, envelope.Metadata.CorrelationId, marketPriceChanged);
                     break;
             }
         }
