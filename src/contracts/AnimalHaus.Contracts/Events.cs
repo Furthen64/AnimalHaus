@@ -9,3 +9,4 @@ public sealed record DispatchCompleted(string ResourceName, int Quantity, string
 public sealed record TractorDispatched(string TractorId, string TaskName, string DestinationSystem, int TickNumber);
 public sealed record FuelLow(string TractorId, int FuelLevel, int TickNumber);
 public sealed record TaskCompleted(string TractorId, string TaskName, string DestinationSystem, int TickNumber);
+public sealed record MarketPriceChanged(string CommodityName, decimal UnitPrice, string Currency, int TickNumber);

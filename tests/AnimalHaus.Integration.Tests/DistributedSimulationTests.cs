@@ -19,6 +19,8 @@ public sealed class DistributedSimulationTests
             ["ANIMALHAUS_PEER_BARN_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5822",
             ["ANIMALHAUS_PEER_TRACTOR_PUB_ENDPOINT"] = "tcp://127.0.0.1:5831",
             ["ANIMALHAUS_PEER_TRACTOR_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5832",
+            ["ANIMALHAUS_PEER_MARKETPLACE_PUB_ENDPOINT"] = "tcp://127.0.0.1:5841",
+            ["ANIMALHAUS_PEER_MARKETPLACE_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5842",
         });
         var barn = StartProcess(Path.Combine(root, "src/systems/AnimalHaus.Barn/AnimalHaus.Barn.csproj"), new Dictionary<string, string>
         {
@@ -31,6 +33,8 @@ public sealed class DistributedSimulationTests
             ["ANIMALHAUS_PEER_PIGPEN_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5812",
             ["ANIMALHAUS_PEER_TRACTOR_PUB_ENDPOINT"] = "tcp://127.0.0.1:5831",
             ["ANIMALHAUS_PEER_TRACTOR_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5832",
+            ["ANIMALHAUS_PEER_MARKETPLACE_PUB_ENDPOINT"] = "tcp://127.0.0.1:5841",
+            ["ANIMALHAUS_PEER_MARKETPLACE_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5842",
         });
         var tractor = StartProcess(Path.Combine(root, "src/systems/AnimalHaus.Tractor/AnimalHaus.Tractor.csproj"), new Dictionary<string, string>
         {
@@ -43,17 +47,29 @@ public sealed class DistributedSimulationTests
             ["ANIMALHAUS_PEER_PIGPEN_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5812",
             ["ANIMALHAUS_PEER_BARN_PUB_ENDPOINT"] = "tcp://127.0.0.1:5821",
             ["ANIMALHAUS_PEER_BARN_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5822",
+            ["ANIMALHAUS_PEER_MARKETPLACE_PUB_ENDPOINT"] = "tcp://127.0.0.1:5841",
+            ["ANIMALHAUS_PEER_MARKETPLACE_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5842",
+        });
+        var marketPlace = StartProcess(Path.Combine(root, "src/systems/AnimalHaus.MarketPlace/AnimalHaus.MarketPlace.csproj"), new Dictionary<string, string>
+        {
+            ["ANIMALHAUS_TICK_INTERVAL_MS"] = "100",
+            ["ANIMALHAUS_MAX_TICKS"] = "6",
+            ["ANIMALHAUS_STARTUP_DELAY_MS"] = "500",
+            ["ANIMALHAUS_PUB_ENDPOINT"] = "tcp://127.0.0.1:5841",
+            ["ANIMALHAUS_COMMAND_ENDPOINT"] = "tcp://127.0.0.1:5842",
         });
 
         var pigpenOutputTask = CaptureOutputAsync(pigpen);
         var barnOutputTask = CaptureOutputAsync(barn);
         var tractorOutputTask = CaptureOutputAsync(tractor);
+        var marketPlaceOutputTask = CaptureOutputAsync(marketPlace);
 
-        await Task.WhenAll(WaitForExitAsync(pigpen), WaitForExitAsync(barn), WaitForExitAsync(tractor));
+        await Task.WhenAll(WaitForExitAsync(pigpen), WaitForExitAsync(barn), WaitForExitAsync(tractor), WaitForExitAsync(marketPlace));
 
         var pigpenOutput = await pigpenOutputTask;
         var barnOutput = await barnOutputTask;
         var tractorOutput = await tractorOutputTask;
+        var marketPlaceOutput = await marketPlaceOutputTask;
 
         Assert.Contains("\"name\":\"DispatchCompleted\"", barnOutput);
         Assert.Contains("\"name\":\"InventoryChanged\"", barnOutput);
@@ -61,6 +77,10 @@ public sealed class DistributedSimulationTests
         Assert.Contains("\"name\":\"TaskCompleted\"", tractorOutput);
         Assert.Contains("\"name\":\"PigFed\"", pigpenOutput);
         Assert.Contains("\"name\":\"PigReadyForTransfer\"", pigpenOutput);
+        Assert.Contains("\"name\":\"MarketPriceChanged\"", marketPlaceOutput);
+        Assert.Contains("\"name\":\"MarketPriceChanged\"", pigpenOutput);
+        Assert.Contains("\"name\":\"MarketPriceChanged\"", barnOutput);
+        Assert.Contains("\"name\":\"MarketPriceChanged\"", tractorOutput);
     }
 
     private static string GetRepositoryRoot() => Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../"));

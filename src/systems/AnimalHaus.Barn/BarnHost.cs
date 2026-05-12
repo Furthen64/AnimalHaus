@@ -26,7 +26,7 @@ public sealed class BarnHost
         using var publisher = new NetMqPublisher(config.Messaging.PubEndpoint);
         using var subscriber = new NetMqSubscriber(
             config.Messaging.Peers.Values.Select(static peer => peer.PubEndpoint),
-            ["pigpen.events.", "tractor.events."]);
+            ["pigpen.events.", "tractor.events.", "marketplace.events."]);
         using var commandServer = new NetMqCommandServer(config.Messaging.CommandEndpoint);
         var commandClient = new NetMqCommandClient();
 

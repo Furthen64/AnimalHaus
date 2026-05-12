@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalHaus.Shared.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalHaus.Integration.Tests", "tests\AnimalHaus.Integration.Tests\AnimalHaus.Integration.Tests.csproj", "{88320953-2650-4BA4-A3E7-16E9EDD7888A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimalHaus.MarketPlace", "src\systems\AnimalHaus.MarketPlace\AnimalHaus.MarketPlace.csproj", "{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,18 @@ Global
 		{88320953-2650-4BA4-A3E7-16E9EDD7888A}.Release|x64.Build.0 = Release|Any CPU
 		{88320953-2650-4BA4-A3E7-16E9EDD7888A}.Release|x86.ActiveCfg = Release|Any CPU
 		{88320953-2650-4BA4-A3E7-16E9EDD7888A}.Release|x86.Build.0 = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|x64.Build.0 = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,5 +180,6 @@ Global
 		{B335F44A-36AF-4C69-8DBA-03A1BBCC15B2} = {6CE1A1D4-525B-ED5A-A279-70C90BC28504}
 		{2708A498-485E-48B1-8799-E5E21989DAFC} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{88320953-2650-4BA4-A3E7-16E9EDD7888A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{7D515C5C-1ABF-45AF-A09D-9AABB2D3B0B5} = {6CE1A1D4-525B-ED5A-A279-70C90BC28504}
 	EndGlobalSection
 EndGlobal
