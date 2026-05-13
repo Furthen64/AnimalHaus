@@ -91,14 +91,37 @@ public sealed class BarnHost
                         break;
                     }
 
-                    PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(InventoryChanged)), new InventoryChanged("feed", inventoryModule.FeedUnits, tick), tick, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                    CommandAccepted assignment;
+                    try
+                    {
+                        assignment = commandClient.Send<AssignTask, CommandAccepted>(
+                            config.Messaging.Peers["Tractor"].CommandEndpoint,
+                            TopicNames.Command("Tractor", nameof(AssignTask)),
+                            new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
+                            envelope.Metadata.CorrelationId,
+                            envelope.Metadata.MessageId.ToString("N"),
+                            timeoutMs: 500);
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        inventoryModule.RestoreFeed(requestDispatch.Quantity);
+                        StructuredLog.Write(config.SystemName, "warning", "AssignTaskTimeout", tick, envelope.Metadata.CorrelationId, new
+                        {
+                            endpoint = config.Messaging.Peers["Tractor"].CommandEndpoint,
+                            ex.Message,
+                        });
+                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Tractor unavailable"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                        break;
+                    }
 
-                    var assignment = commandClient.Send<AssignTask, CommandAccepted>(
-                        config.Messaging.Peers["Tractor"].CommandEndpoint,
-                        TopicNames.Command("Tractor", nameof(AssignTask)),
-                        new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
-                        envelope.Metadata.CorrelationId,
-                        envelope.Metadata.MessageId.ToString("N"));
+                    if (!assignment.Accepted)
+                    {
+                        inventoryModule.RestoreFeed(requestDispatch.Quantity);
+                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), assignment, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                        break;
+                    }
+
+                    PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(InventoryChanged)), new InventoryChanged("feed", inventoryModule.FeedUnits, tick), tick, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
 
                     PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(DispatchCompleted)), new DispatchCompleted(requestDispatch.ResourceName, requestDispatch.Quantity, requestDispatch.DestinationSystem, tick), tick, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
                     commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), assignment, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));

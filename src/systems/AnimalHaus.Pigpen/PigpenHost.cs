@@ -16,6 +16,7 @@ public sealed class PigpenHost
     private readonly string pigId = "pig-001";
     private bool dispatchRequested;
     private bool dispatchCompleted;
+    private bool taskCompletedPending;
     private bool readyPublished;
     private int deliveredFeed;
 
@@ -47,14 +48,26 @@ public sealed class PigpenHost
 
             if (!dispatchRequested && tick >= 2 && feedingModule.NeedsFeed)
             {
-                var response = commandClient.Send<RequestDispatch, CommandAccepted>(
-                    config.Messaging.Peers["Barn"].CommandEndpoint,
-                    TopicNames.Command("Barn", nameof(RequestDispatch)),
-                    new RequestDispatch("feed", 2, config.SystemName),
-                    CorrelationIds.New());
+                try
+                {
+                    var response = commandClient.Send<RequestDispatch, CommandAccepted>(
+                        config.Messaging.Peers["Barn"].CommandEndpoint,
+                        TopicNames.Command("Barn", nameof(RequestDispatch)),
+                        new RequestDispatch("feed", 2, config.SystemName),
+                        CorrelationIds.New(),
+                        timeoutMs: 500);
 
-                dispatchRequested = response.Accepted;
-                StructuredLog.Write(config.SystemName, "command", nameof(RequestDispatch), tick, data: response);
+                    dispatchRequested = response.Accepted;
+                    StructuredLog.Write(config.SystemName, "command", nameof(RequestDispatch), tick, data: response);
+                }
+                catch (TimeoutException ex)
+                {
+                    StructuredLog.Write(config.SystemName, "warning", "RequestDispatchTimeout", tick, data: new
+                    {
+                        endpoint = config.Messaging.Peers["Barn"].CommandEndpoint,
+                        ex.Message,
+                    });
+                }
             }
 
             var wasFed = feedingModule.AdvanceTick();
@@ -107,16 +120,33 @@ public sealed class PigpenHost
                         dispatchCompleted = true;
                         deliveredFeed = dispatchCompletedEvent.Quantity;
                         StructuredLog.Write(config.SystemName, "event", nameof(DispatchCompleted), tick, envelope.Metadata.CorrelationId, dispatchCompletedEvent);
+
+                        if (taskCompletedPending)
+                        {
+                            feedingModule.ReceiveFeed(deliveredFeed);
+                            dispatchCompleted = false;
+                            deliveredFeed = 0;
+                            taskCompletedPending = false;
+                        }
                     }
                     break;
 
                 case nameof(TaskCompleted):
                     var taskCompleted = JsonMessageSerializer.Deserialize<TaskCompleted>(envelope.PayloadJson);
-                    if (dispatchCompleted && string.Equals(taskCompleted.DestinationSystem, config.SystemName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(taskCompleted.DestinationSystem, config.SystemName, StringComparison.OrdinalIgnoreCase))
                     {
-                        feedingModule.ReceiveFeed(deliveredFeed);
-                        dispatchCompleted = false;
-                        deliveredFeed = 0;
+                        if (dispatchCompleted)
+                        {
+                            feedingModule.ReceiveFeed(deliveredFeed);
+                            dispatchCompleted = false;
+                            deliveredFeed = 0;
+                            taskCompletedPending = false;
+                        }
+                        else if (dispatchRequested)
+                        {
+                            taskCompletedPending = true;
+                        }
+
                         StructuredLog.Write(config.SystemName, "event", nameof(TaskCompleted), tick, envelope.Metadata.CorrelationId, taskCompleted);
                     }
                     break;

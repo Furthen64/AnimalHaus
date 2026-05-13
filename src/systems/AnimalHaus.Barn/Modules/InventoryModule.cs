@@ -14,4 +14,12 @@ public sealed class InventoryModule
         FeedUnits -= quantity;
         return true;
     }
+
+    public void RestoreFeed(int quantity)
+    {
+        if (quantity > 0)
+        {
+            FeedUnits += quantity;
+        }
+    }
 }
