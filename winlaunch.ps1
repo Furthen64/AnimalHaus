@@ -26,12 +26,19 @@ try {
         }
 
         Write-Host "Starting $($System.Name) ($($System.Project))"
-        $Process = Start-Process -FilePath "dotnet" -ArgumentList @("run", "--project", $System.Project) -WorkingDirectory $ScriptDir -PassThru
+        $Process = Start-Process -FilePath "dotnet" -ArgumentList @("run", "--project", $System.Project) -WorkingDirectory $ScriptDir -NoNewWindow -PassThru
         $Processes += $Process
     }
 
     Write-Host "All systems started. Press Ctrl+C to stop them."
-    Wait-Process -Id $Processes.Id
+    while ($true) {
+        $RunningProcesses = @($Processes | Where-Object { -not $_.HasExited })
+        if ($RunningProcesses.Count -eq 0) {
+            break
+        }
+
+        Start-Sleep -Seconds 1
+    }
 }
 finally {
     Write-Host ""
