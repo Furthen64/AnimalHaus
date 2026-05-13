@@ -12,6 +12,7 @@ SYSTEM_PROJECTS=(
     "src/systems/AnimalHaus.Pigpen/AnimalHaus.Pigpen.csproj"
     "src/systems/AnimalHaus.Barn/AnimalHaus.Barn.csproj"
     "src/systems/AnimalHaus.Tractor/AnimalHaus.Tractor.csproj"
+    "src/systems/AnimalHaus.MarketPlace/AnimalHaus.MarketPlace.csproj"
 )
 
 echo "=== Building AnimalHaus ==="
@@ -26,6 +27,12 @@ for project in "${SYSTEM_PROJECTS[@]}"; do
     fi
 done
 
-dotnet build AnimalHaus.sln -c "${BUILD_CONFIGURATION}"
+if [[ "${OSTYPE}" == "msys" ]] || [[ "${OSTYPE}" == "cygwin" ]] || [[ "${OSTYPE}" == "win32" ]]; then
+    dotnet build AnimalHaus.sln -c "${BUILD_CONFIGURATION}"
+else
+    for project in "${SYSTEM_PROJECTS[@]}"; do
+        dotnet build "$project" -c "${BUILD_CONFIGURATION}"
+    done
+fi
 
 echo "=== Build complete ==="
