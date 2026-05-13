@@ -47,14 +47,25 @@ public sealed class PigpenHost
 
             if (!dispatchRequested && tick >= 2 && feedingModule.NeedsFeed)
             {
-                var response = commandClient.Send<RequestDispatch, CommandAccepted>(
-                    config.Messaging.Peers["Barn"].CommandEndpoint,
-                    TopicNames.Command("Barn", nameof(RequestDispatch)),
-                    new RequestDispatch("feed", 2, config.SystemName),
-                    CorrelationIds.New());
+                try
+                {
+                    var response = commandClient.Send<RequestDispatch, CommandAccepted>(
+                        config.Messaging.Peers["Barn"].CommandEndpoint,
+                        TopicNames.Command("Barn", nameof(RequestDispatch)),
+                        new RequestDispatch("feed", 2, config.SystemName),
+                        CorrelationIds.New());
 
-                dispatchRequested = response.Accepted;
-                StructuredLog.Write(config.SystemName, "command", nameof(RequestDispatch), tick, data: response);
+                    dispatchRequested = response.Accepted;
+                    StructuredLog.Write(config.SystemName, "command", nameof(RequestDispatch), tick, data: response);
+                }
+                catch (TimeoutException ex)
+                {
+                    StructuredLog.Write(config.SystemName, "warning", "RequestDispatchTimeout", tick, data: new
+                    {
+                        endpoint = config.Messaging.Peers["Barn"].CommandEndpoint,
+                        ex.Message,
+                    });
+                }
             }
 
             var wasFed = feedingModule.AdvanceTick();

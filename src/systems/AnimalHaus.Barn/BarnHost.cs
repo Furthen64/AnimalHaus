@@ -85,20 +85,46 @@ public sealed class BarnHost
             {
                 case nameof(RequestDispatch):
                     var requestDispatch = JsonMessageSerializer.Deserialize<RequestDispatch>(envelope.PayloadJson);
-                    if (!storageCapacityModule.CanAllocate(requestDispatch.Quantity) || !inventoryModule.TryAllocateFeed(requestDispatch.Quantity))
+                    if (!storageCapacityModule.CanAllocate(requestDispatch.Quantity) || !inventoryModule.CanAllocateFeed(requestDispatch.Quantity))
+                    {
+                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Insufficient inventory"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                        break;
+                    }
+
+                    CommandAccepted assignment;
+                    try
+                    {
+                        assignment = commandClient.Send<AssignTask, CommandAccepted>(
+                            config.Messaging.Peers["Tractor"].CommandEndpoint,
+                            TopicNames.Command("Tractor", nameof(AssignTask)),
+                            new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
+                            envelope.Metadata.CorrelationId,
+                            envelope.Metadata.MessageId.ToString("N"));
+                    }
+                    catch (TimeoutException ex)
+                    {
+                        StructuredLog.Write(config.SystemName, "warning", "AssignTaskTimeout", tick, envelope.Metadata.CorrelationId, new
+                        {
+                            endpoint = config.Messaging.Peers["Tractor"].CommandEndpoint,
+                            ex.Message,
+                        });
+                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Tractor unavailable"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                        break;
+                    }
+
+                    if (!assignment.Accepted)
+                    {
+                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), assignment, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
+                        break;
+                    }
+
+                    if (!inventoryModule.TryAllocateFeed(requestDispatch.Quantity))
                     {
                         commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Insufficient inventory"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
                         break;
                     }
 
                     PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(InventoryChanged)), new InventoryChanged("feed", inventoryModule.FeedUnits, tick), tick, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
-
-                    var assignment = commandClient.Send<AssignTask, CommandAccepted>(
-                        config.Messaging.Peers["Tractor"].CommandEndpoint,
-                        TopicNames.Command("Tractor", nameof(AssignTask)),
-                        new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
-                        envelope.Metadata.CorrelationId,
-                        envelope.Metadata.MessageId.ToString("N"));
 
                     PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(DispatchCompleted)), new DispatchCompleted(requestDispatch.ResourceName, requestDispatch.Quantity, requestDispatch.DestinationSystem, tick), tick, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
                     commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), assignment, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
