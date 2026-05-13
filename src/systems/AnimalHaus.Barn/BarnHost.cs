@@ -85,7 +85,7 @@ public sealed class BarnHost
             {
                 case nameof(RequestDispatch):
                     var requestDispatch = JsonMessageSerializer.Deserialize<RequestDispatch>(envelope.PayloadJson);
-                    if (!storageCapacityModule.CanAllocate(requestDispatch.Quantity) || !inventoryModule.CanAllocateFeed(requestDispatch.Quantity))
+                    if (!storageCapacityModule.CanAllocate(requestDispatch.Quantity) || !inventoryModule.TryAllocateFeed(requestDispatch.Quantity))
                     {
                         commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Insufficient inventory"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
                         break;
@@ -99,10 +99,12 @@ public sealed class BarnHost
                             TopicNames.Command("Tractor", nameof(AssignTask)),
                             new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
                             envelope.Metadata.CorrelationId,
-                            envelope.Metadata.MessageId.ToString("N"));
+                            envelope.Metadata.MessageId.ToString("N"),
+                            timeoutMs: 500);
                     }
                     catch (TimeoutException ex)
                     {
+                        inventoryModule.RestoreFeed(requestDispatch.Quantity);
                         StructuredLog.Write(config.SystemName, "warning", "AssignTaskTimeout", tick, envelope.Metadata.CorrelationId, new
                         {
                             endpoint = config.Messaging.Peers["Tractor"].CommandEndpoint,
@@ -114,13 +116,8 @@ public sealed class BarnHost
 
                     if (!assignment.Accepted)
                     {
+                        inventoryModule.RestoreFeed(requestDispatch.Quantity);
                         commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), assignment, envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
-                        break;
-                    }
-
-                    if (!inventoryModule.TryAllocateFeed(requestDispatch.Quantity))
-                    {
-                        commandServer.Reply(TopicNames.Command(config.SystemName, nameof(RequestDispatch)), new CommandAccepted(false, "Insufficient inventory"), envelope.Metadata.CorrelationId, envelope.Metadata.MessageId.ToString("N"));
                         break;
                     }
 
