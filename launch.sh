@@ -8,12 +8,14 @@ SYSTEM_NAMES=(
   "Pigpen"
   "Barn"
   "Tractor"
+  "MarketPlace"
 )
 
 SYSTEM_PROJECTS=(
   "src/systems/AnimalHaus.Pigpen/AnimalHaus.Pigpen.csproj"
   "src/systems/AnimalHaus.Barn/AnimalHaus.Barn.csproj"
   "src/systems/AnimalHaus.Tractor/AnimalHaus.Tractor.csproj"
+  "src/systems/AnimalHaus.MarketPlace/AnimalHaus.MarketPlace.csproj"
 )
 
 PIDS=()
