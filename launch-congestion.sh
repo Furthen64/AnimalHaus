@@ -25,6 +25,8 @@ MAX_TICKS="${ANIMALHAUS_CONGESTION_MAX_TICKS:-400}"
 STARTUP_DELAY_MS="${ANIMALHAUS_CONGESTION_STARTUP_DELAY_MS:-50}"
 
 PIDS=()
+START_TIME=$(date +%s)
+SHUTDOWN_REASON="normal"
 
 cleanup() {
   trap - EXIT INT TERM
@@ -43,9 +45,31 @@ cleanup() {
   done
 
   wait "${PIDS[@]}" 2>/dev/null || true
+
+  local end_time elapsed_seconds
+  end_time=$(date +%s)
+  elapsed_seconds=$((end_time - START_TIME))
+
+  echo "=== Congestion run summary ==="
+  echo "reason=${SHUTDOWN_REASON}"
+  echo "systems=${#SYSTEM_NAMES[@]}"
+  echo "tickIntervalMs=${TICK_INTERVAL_MS}, maxTicks=${MAX_TICKS}, startupDelayMs=${STARTUP_DELAY_MS}"
+  echo "runtimeSeconds=${elapsed_seconds}"
 }
 
-trap cleanup EXIT INT TERM
+on_interrupt() {
+  SHUTDOWN_REASON="interrupt"
+  cleanup
+}
+
+on_term() {
+  SHUTDOWN_REASON="terminated"
+  cleanup
+}
+
+trap cleanup EXIT
+trap on_interrupt INT
+trap on_term TERM
 
 echo "=== Launching AnimalHaus congestion profile ==="
 echo "tickIntervalMs=${TICK_INTERVAL_MS}, maxTicks=${MAX_TICKS}, startupDelayMs=${STARTUP_DELAY_MS}"
