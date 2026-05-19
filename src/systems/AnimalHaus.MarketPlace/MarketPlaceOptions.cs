@@ -11,7 +11,7 @@ public sealed class MarketPlaceOptions
 
     // Pricing rules
     public int PriceDeltaMin { get; set; } = -6;
-    public int PriceDeltaMax { get; set; } = 7;
+    public int PriceDeltaMax { get; set; } = 6;
     public decimal MinPrice { get; set; } = 0.50m;
 
     // Global currency

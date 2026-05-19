@@ -28,7 +28,7 @@ public sealed class PenEnvironmentModule
 
     public void AdvanceTick(DeterministicRandomProvider randomProvider)
     {
-        CleanlinessScore = Math.Clamp(CleanlinessScore - randomProvider.Next(_cleanlinessDecayMin, _cleanlinessDecayMax), 0, 100);
-        TemperatureCelsius += randomProvider.Next(_temperatureDeltaMin, _temperatureDeltaMax);
+        CleanlinessScore = Math.Clamp(CleanlinessScore - randomProvider.Next(_cleanlinessDecayMin, _cleanlinessDecayMax + 1), 0, 100);
+        TemperatureCelsius += randomProvider.Next(_temperatureDeltaMin, _temperatureDeltaMax + 1);
     }
 }

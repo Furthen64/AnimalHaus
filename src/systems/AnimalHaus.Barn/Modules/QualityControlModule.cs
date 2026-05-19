@@ -19,6 +19,6 @@ public sealed class QualityControlModule
 
     public void AdvanceTick(DeterministicRandomProvider randomProvider)
     {
-        FreshnessScore = Math.Clamp(FreshnessScore - randomProvider.Next(_freshnessDecayMin, _freshnessDecayMax), 0, 100);
+        FreshnessScore = Math.Clamp(FreshnessScore - randomProvider.Next(_freshnessDecayMin, _freshnessDecayMax + 1), 0, 100);
     }
 }

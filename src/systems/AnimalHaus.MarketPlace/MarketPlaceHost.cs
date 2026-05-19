@@ -49,7 +49,7 @@ public sealed class MarketPlaceHost
 
     private decimal NextPrice(decimal current)
     {
-        var delta = randomProvider.Next(options.PriceDeltaMin, options.PriceDeltaMax) / 100m;
+        var delta = randomProvider.Next(options.PriceDeltaMin, options.PriceDeltaMax + 1) / 100m;
         var next = current + delta;
         return decimal.Round(Math.Max(options.MinPrice, next), 2, MidpointRounding.AwayFromZero);
     }

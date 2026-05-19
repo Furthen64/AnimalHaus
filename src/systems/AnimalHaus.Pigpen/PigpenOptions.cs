@@ -22,10 +22,10 @@ public sealed class PigpenOptions
     // Pen environment
     public int InitialCleanliness { get; set; } = 88;
     public int CleanlinessDecayMin { get; set; } = 1;
-    public int CleanlinessDecayMax { get; set; } = 4;
+    public int CleanlinessDecayMax { get; set; } = 3;
     public int InitialTemperature { get; set; } = 21;
     public int TemperatureDeltaMin { get; set; } = -1;
-    public int TemperatureDeltaMax { get; set; } = 2;
+    public int TemperatureDeltaMax { get; set; } = 1;
 
     // Dispatch behaviour
     public int FeedRequestQuantity { get; set; } = 2;

@@ -15,5 +15,5 @@ public sealed class BarnOptions
     // Quality control
     public int InitialFreshnessScore { get; set; } = 100;
     public int FreshnessDecayMin { get; set; } = 1;
-    public int FreshnessDecayMax { get; set; } = 3;
+    public int FreshnessDecayMax { get; set; } = 2;
 }
