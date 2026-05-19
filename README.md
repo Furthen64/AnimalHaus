@@ -20,7 +20,7 @@ AnimalHaus is a distributed farm simulator example built on .NET 8 and ZeroMQ.
 
 Four independent .NET 8 processes communicate over ZeroMQ using PUB/SUB events (dashed arrows) and REQ/REP commands (solid arrows):
 
-You can use the cross-platform Avalonia `AdministrationApp` tool to coordinate and monitor endpoint configuration for these systems.
+You can use the cross-platform Avalonia `AdministrationApp` tool to manage endpoint configuration for these systems.
 
 ```mermaid
 flowchart LR
