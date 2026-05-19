@@ -1,5 +1,6 @@
 using AnimalHaus.Contracts.Commands;
 using AnimalHaus.Contracts.Events;
+using AnimalHaus.Tractor;
 using AnimalHaus.Shared.Core;
 using AnimalHaus.Shared.Messaging;
 using AnimalHaus.Shared.Utils;
@@ -8,15 +9,21 @@ using AnimalHaus.Tractor.Modules;
 public sealed class TractorHost
 {
     private readonly SystemConfiguration config;
-    private readonly RoutePlanningModule routePlanningModule = new();
-    private readonly FuelModule fuelModule = new();
-    private readonly HaulingModule haulingModule = new();
-    private readonly MaintenanceModule maintenanceModule = new();
+    private readonly RoutePlanningModule routePlanningModule;
+    private readonly FuelModule fuelModule;
+    private readonly HaulingModule haulingModule;
+    private readonly MaintenanceModule maintenanceModule;
+    private readonly int _fuelConsumptionPerTask;
     private readonly string tractorId = "tractor-01";
 
-    public TractorHost(SystemConfiguration config)
+    public TractorHost(SystemConfiguration config, TractorOptions options)
     {
         this.config = config;
+        _fuelConsumptionPerTask = options.FuelConsumptionPerTask;
+        routePlanningModule = new RoutePlanningModule(options);
+        fuelModule = new FuelModule(options);
+        haulingModule = new HaulingModule(options);
+        maintenanceModule = new MaintenanceModule(options);
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -38,7 +45,7 @@ public sealed class TractorHost
 
             if (haulingModule.TryCompleteTick(out var completedTask))
             {
-                fuelModule.Consume(12);
+                fuelModule.Consume(_fuelConsumptionPerTask);
                 maintenanceModule.RecordHaul();
                 PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(TaskCompleted)), new TaskCompleted(tractorId, completedTask.TaskName, completedTask.DestinationSystem, tick), tick, completedTask.CorrelationId, completedTask.CausationId);
 

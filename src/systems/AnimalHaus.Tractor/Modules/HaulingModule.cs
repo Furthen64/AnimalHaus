@@ -1,14 +1,22 @@
+using AnimalHaus.Tractor;
+
 namespace AnimalHaus.Tractor.Modules;
 
 public sealed class HaulingModule
 {
+    private readonly int _taskDurationTicks;
     private PendingTask? pendingTask;
 
     public bool HasPendingTask => pendingTask is not null;
 
+    public HaulingModule(TractorOptions options)
+    {
+        _taskDurationTicks = options.TaskDurationTicks;
+    }
+
     public void Assign(string taskName, string destinationSystem, string correlationId, string causationId, string route)
     {
-        pendingTask = new PendingTask(taskName, destinationSystem, correlationId, causationId, route, 1);
+        pendingTask = new PendingTask(taskName, destinationSystem, correlationId, causationId, route, _taskDurationTicks);
     }
 
     public bool TryCompleteTick(out PendingTask completedTask)

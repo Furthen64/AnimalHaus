@@ -1,3 +1,4 @@
+using AnimalHaus.Barn;
 using AnimalHaus.Barn.Modules;
 using AnimalHaus.Contracts.Commands;
 using AnimalHaus.Contracts.Events;
@@ -8,17 +9,22 @@ using AnimalHaus.Shared.Utils;
 public sealed class BarnHost
 {
     private readonly SystemConfiguration config;
+    private readonly BarnOptions options;
     private readonly DeterministicRandomProvider randomProvider;
-    private readonly InventoryModule inventoryModule = new();
-    private readonly StorageCapacityModule storageCapacityModule = new();
+    private readonly InventoryModule inventoryModule;
+    private readonly StorageCapacityModule storageCapacityModule;
     private readonly DispatchModule dispatchModule = new();
-    private readonly QualityControlModule qualityControlModule = new();
+    private readonly QualityControlModule qualityControlModule;
     private bool resourceLowPublished;
 
-    public BarnHost(SystemConfiguration config)
+    public BarnHost(SystemConfiguration config, BarnOptions options)
     {
         this.config = config;
+        this.options = options;
         randomProvider = new DeterministicRandomProvider(config.Simulation.Seed);
+        inventoryModule = new InventoryModule(options);
+        storageCapacityModule = new StorageCapacityModule(options);
+        qualityControlModule = new QualityControlModule(options);
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -30,7 +36,7 @@ public sealed class BarnHost
         using var commandServer = new NetMqCommandServer(config.Messaging.CommandEndpoint);
         var commandClient = new NetMqCommandClient();
 
-        StructuredLog.Write(config.SystemName, "lifecycle", "started", data: new { inventoryModule.FeedUnits });
+        StructuredLog.Write(config.SystemName, "lifecycle", "started", data: new { inventoryModule.FeedUnits, storageCapacityModule.Capacity });
         await Task.Delay(config.Simulation.StartupDelayMs, cancellationToken);
 
         for (var tick = 1; tick <= config.Simulation.MaxTicks; tick++)
@@ -40,7 +46,7 @@ public sealed class BarnHost
             DrainCommands(commandServer, commandClient, publisher, tick);
             qualityControlModule.AdvanceTick(randomProvider);
 
-            if (!resourceLowPublished && inventoryModule.FeedUnits <= 2)
+            if (!resourceLowPublished && inventoryModule.FeedUnits <= options.ResourceLowThreshold)
             {
                 resourceLowPublished = true;
                 PublishEvent(publisher, TopicNames.Event(config.SystemName, nameof(ResourceLow)), new ResourceLow("feed", inventoryModule.FeedUnits, tick), tick);
@@ -100,7 +106,7 @@ public sealed class BarnHost
                             new AssignTask(dispatchModule.CreateTaskName(tick), requestDispatch.DestinationSystem, requestDispatch.ResourceName, requestDispatch.Quantity),
                             envelope.Metadata.CorrelationId,
                             envelope.Metadata.MessageId.ToString("N"),
-                            timeoutMs: 500);
+                            timeoutMs: options.AssignTaskTimeoutMs);
                     }
                     catch (TimeoutException ex)
                     {

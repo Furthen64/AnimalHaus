@@ -1,10 +1,30 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using AnimalHaus.Shared.Core;
 
 namespace AnimalHaus.Shared.Utils;
 
 public static class SystemConfigurationLoader
 {
+    public static TDomain LoadDomain<TDomain>(string basePath) where TDomain : new()
+    {
+        var appSettingsPath = Path.Combine(basePath, "appsettings.json");
+        if (!File.Exists(appSettingsPath))
+        {
+            return new TDomain();
+        }
+
+        var root = JsonNode.Parse(File.ReadAllText(appSettingsPath));
+        var domainNode = root?["domain"];
+        if (domainNode is null)
+        {
+            return new TDomain();
+        }
+
+        return JsonSerializer.Deserialize<TDomain>(domainNode.ToJsonString(), JsonMessageSerializer.DefaultOptions)
+            ?? new TDomain();
+    }
+
     public static SystemConfiguration Load(string basePath, string defaultSystemName)
     {
         var config = new SystemConfiguration { SystemName = defaultSystemName };

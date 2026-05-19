@@ -1,5 +1,6 @@
 using AnimalHaus.Contracts.Commands;
 using AnimalHaus.Contracts.Events;
+using AnimalHaus.Pigpen;
 using AnimalHaus.Shared.Core;
 using AnimalHaus.Shared.Messaging;
 using AnimalHaus.Shared.Utils;
@@ -8,11 +9,12 @@ using AnimalHaus.Pigpen.Modules;
 public sealed class PigpenHost
 {
     private readonly SystemConfiguration config;
+    private readonly PigpenOptions options;
     private readonly DeterministicRandomProvider randomProvider;
-    private readonly PigLifecycleModule lifecycleModule = new();
-    private readonly FeedingModule feedingModule = new();
-    private readonly HealthModule healthModule = new();
-    private readonly PenEnvironmentModule environmentModule = new();
+    private readonly PigLifecycleModule lifecycleModule;
+    private readonly FeedingModule feedingModule;
+    private readonly HealthModule healthModule;
+    private readonly PenEnvironmentModule environmentModule;
     private readonly string pigId = "pig-001";
     private bool dispatchRequested;
     private bool dispatchCompleted;
@@ -20,10 +22,15 @@ public sealed class PigpenHost
     private bool readyPublished;
     private int deliveredFeed;
 
-    public PigpenHost(SystemConfiguration config)
+    public PigpenHost(SystemConfiguration config, PigpenOptions options)
     {
         this.config = config;
+        this.options = options;
         randomProvider = new DeterministicRandomProvider(config.Simulation.Seed);
+        lifecycleModule = new PigLifecycleModule(options);
+        feedingModule = new FeedingModule(options);
+        healthModule = new HealthModule(options);
+        environmentModule = new PenEnvironmentModule(options);
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -46,14 +53,14 @@ public sealed class PigpenHost
             DrainCommands(commandServer);
             DrainEvents(subscriber, tick);
 
-            if (!dispatchRequested && tick >= 2 && feedingModule.NeedsFeed)
+            if (!dispatchRequested && tick >= options.FeedRequestEarliestTick && feedingModule.NeedsFeed)
             {
                 try
                 {
                     var response = commandClient.Send<RequestDispatch, CommandAccepted>(
                         config.Messaging.Peers["Barn"].CommandEndpoint,
                         TopicNames.Command("Barn", nameof(RequestDispatch)),
-                        new RequestDispatch("feed", 2, config.SystemName),
+                        new RequestDispatch("feed", options.FeedRequestQuantity, config.SystemName),
                         CorrelationIds.New(),
                         timeoutMs: 500);
 

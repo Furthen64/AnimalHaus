@@ -1,16 +1,31 @@
+using AnimalHaus.Pigpen;
+
 namespace AnimalHaus.Pigpen.Modules;
 
 public sealed class PigLifecycleModule
 {
-    public int AgeInTicks { get; private set; } = 1;
+    private readonly int _weightGainFed;
+    private readonly int _weightGainUnfed;
+    private readonly int _transferWeightThreshold;
 
-    public int Weight { get; private set; } = 100;
+    public int AgeInTicks { get; private set; }
 
-    public bool IsReadyForTransfer => Weight >= 140;
+    public int Weight { get; private set; }
+
+    public bool IsReadyForTransfer => Weight >= _transferWeightThreshold;
+
+    public PigLifecycleModule(PigpenOptions options)
+    {
+        AgeInTicks = options.InitialAgeTicks;
+        Weight = options.InitialWeight;
+        _weightGainFed = options.WeightGainFed;
+        _weightGainUnfed = options.WeightGainUnfed;
+        _transferWeightThreshold = options.TransferWeightThreshold;
+    }
 
     public void AdvanceTick(bool wasFed)
     {
         AgeInTicks++;
-        Weight += wasFed ? 12 : 4;
+        Weight += wasFed ? _weightGainFed : _weightGainUnfed;
     }
 }

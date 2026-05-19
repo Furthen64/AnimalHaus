@@ -1,4 +1,5 @@
 using AnimalHaus.Contracts.Events;
+using AnimalHaus.MarketPlace;
 using AnimalHaus.Shared.Core;
 using AnimalHaus.Shared.Messaging;
 using AnimalHaus.Shared.Utils;
@@ -6,14 +7,16 @@ using AnimalHaus.Shared.Utils;
 public sealed class MarketPlaceHost
 {
     private readonly SystemConfiguration config;
+    private readonly MarketPlaceOptions options;
     private readonly DeterministicRandomProvider randomProvider;
-    private decimal eggsPrice = 3.10m;
-    private decimal milkPrice = 2.45m;
+    private readonly Dictionary<string, decimal> prices;
 
-    public MarketPlaceHost(SystemConfiguration config)
+    public MarketPlaceHost(SystemConfiguration config, MarketPlaceOptions options)
     {
         this.config = config;
+        this.options = options;
         randomProvider = new DeterministicRandomProvider(config.Simulation.Seed);
+        prices = new Dictionary<string, decimal>(options.Commodities, StringComparer.OrdinalIgnoreCase);
     }
 
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -27,17 +30,16 @@ public sealed class MarketPlaceHost
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            eggsPrice = NextPrice(eggsPrice);
-            milkPrice = NextPrice(milkPrice);
-
-            PublishEvent(publisher, new MarketPriceChanged("eggs", eggsPrice, "USD", tick), tick);
-            PublishEvent(publisher, new MarketPriceChanged("milk", milkPrice, "USD", tick), tick);
-
-            StructuredLog.Write(config.SystemName, "tick", "state", tick, data: new
+            if (tick % options.PriceUpdateEveryNTicks == 0)
             {
-                Eggs = eggsPrice,
-                Milk = milkPrice,
-            });
+                foreach (var commodity in prices.Keys.ToList())
+                {
+                    prices[commodity] = NextPrice(prices[commodity]);
+                    PublishEvent(publisher, new MarketPriceChanged(commodity, prices[commodity], options.Currency, tick), tick);
+                }
+            }
+
+            StructuredLog.Write(config.SystemName, "tick", "state", tick, data: new { Prices = prices });
 
             await Task.Delay(config.Simulation.TickIntervalMs, cancellationToken);
         }
@@ -47,9 +49,9 @@ public sealed class MarketPlaceHost
 
     private decimal NextPrice(decimal current)
     {
-        var delta = randomProvider.Next(-6, 7) / 100m;
+        var delta = randomProvider.Next(options.PriceDeltaMin, options.PriceDeltaMax + 1) / 100m;
         var next = current + delta;
-        return decimal.Round(Math.Max(0.50m, next), 2, MidpointRounding.AwayFromZero);
+        return decimal.Round(Math.Max(options.MinPrice, next), 2, MidpointRounding.AwayFromZero);
     }
 
     private void PublishEvent(NetMqPublisher publisher, MarketPriceChanged payload, int tick)
