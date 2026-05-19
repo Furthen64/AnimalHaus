@@ -6,11 +6,11 @@
         mc:Ignorable="d"
         x:Class="AdministrationApp.MainWindow"
         Width="980"
-        Height="680"
+        Height="860"
         MinWidth="900"
-        MinHeight="600"
-        Title="AdministrationApp - Endpoint Settings">
-  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        MinHeight="700"
+        Title="AdministrationApp - System Settings">
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto"
         Margin="16">
     <StackPanel Grid.Row="0"
                 Orientation="Horizontal"
@@ -59,6 +59,70 @@
             Margin="0,12,0,0"
             BorderThickness="1"
             Padding="12">
+      <StackPanel Spacing="8">
+        <TextBlock FontWeight="Bold"
+                   Text="Simulation Settings" />
+        <Grid ColumnDefinitions="Auto,*,Auto,*"
+              RowDefinitions="Auto,Auto"
+              ColumnSpacing="8"
+              RowSpacing="8">
+          <TextBlock Grid.Row="0"
+                     Grid.Column="0"
+                     Text="Tick Interval (ms):"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="TickIntervalMsTextBox"
+                   Grid.Row="0"
+                   Grid.Column="1"
+                   Width="100" />
+          <TextBlock Grid.Row="0"
+                     Grid.Column="2"
+                     Text="Startup Delay (ms):"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="StartupDelayMsTextBox"
+                   Grid.Row="0"
+                   Grid.Column="3"
+                   Width="100" />
+          <TextBlock Grid.Row="1"
+                     Grid.Column="0"
+                     Text="Max Ticks:"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="MaxTicksTextBox"
+                   Grid.Row="1"
+                   Grid.Column="1"
+                   Width="100" />
+          <TextBlock Grid.Row="1"
+                     Grid.Column="2"
+                     Text="Seed:"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="SeedTextBox"
+                   Grid.Row="1"
+                   Grid.Column="3"
+                   Width="100" />
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="3"
+            Margin="0,12,0,0"
+            BorderThickness="1"
+            Padding="12">
+      <StackPanel Spacing="8">
+        <TextBlock FontWeight="Bold"
+                   Text="Domain Settings (JSON)" />
+        <TextBox x:Name="DomainJsonTextBox"
+                 AcceptsReturn="True"
+                 Height="120"
+                 TextWrapping="Wrap"
+                 FontFamily="Consolas,monospace"
+                 FontSize="12"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="4"
+            Margin="0,12,0,0"
+            BorderThickness="1"
+            Padding="12">
       <Grid RowDefinitions="Auto,*"
             RowSpacing="8">
         <StackPanel Grid.Row="0"
@@ -101,7 +165,7 @@
       </Grid>
     </Border>
 
-    <Grid Grid.Row="3"
+    <Grid Grid.Row="5"
           Margin="0,12,0,0"
           ColumnDefinitions="*,Auto">
       <TextBlock x:Name="StatusTextBlock"

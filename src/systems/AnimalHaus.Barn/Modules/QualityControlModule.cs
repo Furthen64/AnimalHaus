@@ -1,13 +1,24 @@
+using AnimalHaus.Barn;
 using AnimalHaus.Shared.Utils;
 
 namespace AnimalHaus.Barn.Modules;
 
 public sealed class QualityControlModule
 {
-    public int FreshnessScore { get; private set; } = 100;
+    private readonly int _freshnessDecayMin;
+    private readonly int _freshnessDecayMax;
+
+    public int FreshnessScore { get; private set; }
+
+    public QualityControlModule(BarnOptions options)
+    {
+        FreshnessScore = options.InitialFreshnessScore;
+        _freshnessDecayMin = options.FreshnessDecayMin;
+        _freshnessDecayMax = options.FreshnessDecayMax;
+    }
 
     public void AdvanceTick(DeterministicRandomProvider randomProvider)
     {
-        FreshnessScore = Math.Clamp(FreshnessScore - randomProvider.Next(1, 3), 0, 100);
+        FreshnessScore = Math.Clamp(FreshnessScore - randomProvider.Next(_freshnessDecayMin, _freshnessDecayMax), 0, 100);
     }
 }
