@@ -92,7 +92,7 @@
                          Width="140"
                          Text="{Binding PubPort, Mode=TwoWay}" />
                 <TextBox Grid.Column="2"
-                         Width="160"
+                         Width="140"
                          Text="{Binding CommandPort, Mode=TwoWay}" />
               </Grid>
             </DataTemplate>
