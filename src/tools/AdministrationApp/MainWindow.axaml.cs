@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using AnimalHaus.Shared.Core;
@@ -291,11 +293,40 @@ public sealed record ProjectSettingsFile(string DisplayName, string SettingsFile
     public override string ToString() => DisplayName;
 }
 
-public sealed class PeerEndpointRow
+public sealed class PeerEndpointRow : INotifyPropertyChanged
 {
-    public string PeerName { get; set; } = string.Empty;
+    private string _peerName = string.Empty;
+    private string _pubPort = string.Empty;
+    private string _commandPort = string.Empty;
 
-    public string PubPort { get; set; } = string.Empty;
+    public string PeerName
+    {
+        get => _peerName;
+        set => SetField(ref _peerName, value);
+    }
 
-    public string CommandPort { get; set; } = string.Empty;
+    public string PubPort
+    {
+        get => _pubPort;
+        set => SetField(ref _pubPort, value);
+    }
+
+    public string CommandPort
+    {
+        get => _commandPort;
+        set => SetField(ref _commandPort, value);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void SetField(ref string field, string value, [CallerMemberName] string? propertyName = null)
+    {
+        if (field == value)
+        {
+            return;
+        }
+
+        field = value;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
