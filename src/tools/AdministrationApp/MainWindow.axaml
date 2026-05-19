@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AdministrationApp"
+        mc:Ignorable="d"
+        x:Class="AdministrationApp.MainWindow"
+        Width="980"
+        Height="680"
+        MinWidth="900"
+        MinHeight="600"
+        Title="AdministrationApp - Endpoint Settings">
+  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        Margin="16">
+    <StackPanel Grid.Row="0"
+                Orientation="Horizontal"
+                Spacing="8">
+      <TextBlock Text="Project:"
+                 VerticalAlignment="Center" />
+      <ComboBox x:Name="ProjectComboBox"
+                Width="360"
+                VerticalAlignment="Center" />
+      <Button x:Name="ReloadButton"
+              Content="Reload Projects" />
+    </StackPanel>
+
+    <GroupBox Grid.Row="1"
+              Margin="0,12,0,0"
+              Header="Project Endpoint Ports">
+      <Grid Margin="12"
+            ColumnDefinitions="Auto,*"
+            RowDefinitions="Auto,Auto"
+            ColumnSpacing="8"
+            RowSpacing="8">
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="Pub Port:"
+                   VerticalAlignment="Center" />
+        <TextBox x:Name="ProjectPubPortTextBox"
+                 Grid.Row="0"
+                 Grid.Column="1"
+                 Width="140" />
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Text="Command Port:"
+                   VerticalAlignment="Center" />
+        <TextBox x:Name="ProjectCommandPortTextBox"
+                 Grid.Row="1"
+                 Grid.Column="1"
+                 Width="140" />
+      </Grid>
+    </GroupBox>
+
+    <GroupBox Grid.Row="2"
+              Margin="0,12,0,0"
+              Header="Peer Endpoint Ports">
+      <Grid Margin="12"
+            RowDefinitions="Auto,*"
+            RowSpacing="8">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="3*,2*,2*"
+              ColumnSpacing="8">
+          <TextBlock Grid.Column="0"
+                     FontWeight="Bold"
+                     Text="Peer Project" />
+          <TextBlock Grid.Column="1"
+                     FontWeight="Bold"
+                     Text="Peer Pub Port" />
+          <TextBlock Grid.Column="2"
+                     FontWeight="Bold"
+                     Text="Peer Command Port" />
+        </Grid>
+
+        <ListBox x:Name="PeersListBox"
+                 Grid.Row="1">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="local:PeerEndpointRow">
+              <Grid ColumnDefinitions="3*,2*,2*"
+                    ColumnSpacing="8">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding PeerName}"
+                           VerticalAlignment="Center" />
+                <TextBox Grid.Column="1"
+                         Width="140"
+                         Text="{Binding PubPort, Mode=TwoWay}" />
+                <TextBox Grid.Column="2"
+                         Width="160"
+                         Text="{Binding CommandPort, Mode=TwoWay}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Grid>
+    </GroupBox>
+
+    <Grid Grid.Row="3"
+          Margin="0,12,0,0"
+          ColumnDefinitions="*,Auto">
+      <TextBlock x:Name="StatusTextBlock"
+                 VerticalAlignment="Center" />
+      <Button x:Name="SaveButton"
+              Grid.Column="1"
+              Content="Save Settings" />
+    </Grid>
+  </Grid>
+</Window>
