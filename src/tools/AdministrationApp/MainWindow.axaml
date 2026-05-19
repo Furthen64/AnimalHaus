@@ -24,52 +24,60 @@
               Content="Reload Projects" />
     </StackPanel>
 
-    <GroupBox Grid.Row="1"
-              Margin="0,12,0,0"
-              Header="Project Endpoint Ports">
-      <Grid Margin="12"
-            ColumnDefinitions="Auto,*"
-            RowDefinitions="Auto,Auto"
-            ColumnSpacing="8"
-            RowSpacing="8">
-        <TextBlock Grid.Row="0"
-                   Grid.Column="0"
-                   Text="Pub Port:"
-                   VerticalAlignment="Center" />
-        <TextBox x:Name="ProjectPubPortTextBox"
-                 Grid.Row="0"
-                 Grid.Column="1"
-                 Width="140" />
-        <TextBlock Grid.Row="1"
-                   Grid.Column="0"
-                   Text="Command Port:"
-                   VerticalAlignment="Center" />
-        <TextBox x:Name="ProjectCommandPortTextBox"
-                 Grid.Row="1"
-                 Grid.Column="1"
-                 Width="140" />
-      </Grid>
-    </GroupBox>
-
-    <GroupBox Grid.Row="2"
-              Margin="0,12,0,0"
-              Header="Peer Endpoint Ports">
-      <Grid Margin="12"
-            RowDefinitions="Auto,*"
-            RowSpacing="8">
-        <Grid Grid.Row="0"
-              ColumnDefinitions="3*,2*,2*"
-              ColumnSpacing="8">
-          <TextBlock Grid.Column="0"
-                     FontWeight="Bold"
-                     Text="Peer Project" />
-          <TextBlock Grid.Column="1"
-                     FontWeight="Bold"
-                     Text="Peer Pub Port" />
-          <TextBlock Grid.Column="2"
-                     FontWeight="Bold"
-                     Text="Peer Command Port" />
+    <Border Grid.Row="1"
+            Margin="0,12,0,0"
+            BorderThickness="1"
+            Padding="12">
+      <StackPanel Spacing="8">
+        <TextBlock FontWeight="Bold"
+                   Text="Project Endpoint Ports" />
+        <Grid ColumnDefinitions="Auto,*"
+              RowDefinitions="Auto,Auto"
+              ColumnSpacing="8"
+              RowSpacing="8">
+          <TextBlock Grid.Row="0"
+                     Grid.Column="0"
+                     Text="Pub Port:"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="ProjectPubPortTextBox"
+                   Grid.Row="0"
+                   Grid.Column="1"
+                   Width="140" />
+          <TextBlock Grid.Row="1"
+                     Grid.Column="0"
+                     Text="Command Port:"
+                     VerticalAlignment="Center" />
+          <TextBox x:Name="ProjectCommandPortTextBox"
+                   Grid.Row="1"
+                   Grid.Column="1"
+                   Width="140" />
         </Grid>
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="2"
+            Margin="0,12,0,0"
+            BorderThickness="1"
+            Padding="12">
+      <Grid RowDefinitions="Auto,*"
+            RowSpacing="8">
+        <StackPanel Grid.Row="0"
+                    Spacing="8">
+          <TextBlock FontWeight="Bold"
+                     Text="Peer Endpoint Ports" />
+          <Grid ColumnDefinitions="3*,2*,2*"
+                ColumnSpacing="8">
+            <TextBlock Grid.Column="0"
+                       FontWeight="Bold"
+                       Text="Peer Project" />
+            <TextBlock Grid.Column="1"
+                       FontWeight="Bold"
+                       Text="Peer Pub Port" />
+            <TextBlock Grid.Column="2"
+                       FontWeight="Bold"
+                       Text="Peer Command Port" />
+          </Grid>
+        </StackPanel>
 
         <ListBox x:Name="PeersListBox"
                  Grid.Row="1">
@@ -91,7 +99,7 @@
           </ListBox.ItemTemplate>
         </ListBox>
       </Grid>
-    </GroupBox>
+    </Border>
 
     <Grid Grid.Row="3"
           Margin="0,12,0,0"

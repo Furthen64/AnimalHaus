@@ -38,13 +38,13 @@ public partial class MainWindow : Window
     {
         AvaloniaXamlLoader.Load(this);
 
-        _projectComboBox = this.FindControl<ComboBox>(nameof(ProjectComboBox));
-        _reloadButton = this.FindControl<Button>(nameof(ReloadButton));
-        _projectPubPortTextBox = this.FindControl<TextBox>(nameof(ProjectPubPortTextBox));
-        _projectCommandPortTextBox = this.FindControl<TextBox>(nameof(ProjectCommandPortTextBox));
-        _peersListBox = this.FindControl<ListBox>(nameof(PeersListBox));
-        _statusTextBlock = this.FindControl<TextBlock>(nameof(StatusTextBlock));
-        _saveButton = this.FindControl<Button>(nameof(SaveButton));
+        _projectComboBox = this.FindControl<ComboBox>(nameof(ProjectComboBox))!;
+        _reloadButton = this.FindControl<Button>(nameof(ReloadButton))!;
+        _projectPubPortTextBox = this.FindControl<TextBox>(nameof(ProjectPubPortTextBox))!;
+        _projectCommandPortTextBox = this.FindControl<TextBox>(nameof(ProjectCommandPortTextBox))!;
+        _peersListBox = this.FindControl<ListBox>(nameof(PeersListBox))!;
+        _statusTextBlock = this.FindControl<TextBlock>(nameof(StatusTextBlock))!;
+        _saveButton = this.FindControl<Button>(nameof(SaveButton))!;
 
         _projectComboBox.ItemsSource = _availableProjects;
         _peersListBox.ItemsSource = _peerRows;
