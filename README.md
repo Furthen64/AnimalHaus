@@ -8,6 +8,7 @@ AnimalHaus is a distributed farm simulator example built on .NET 8 and ZeroMQ.
 - `src/systems/AnimalHaus.Barn`
 - `src/systems/AnimalHaus.Tractor`
 - `src/systems/AnimalHaus.MarketPlace`
+- `src/tools/AdministrationApp`
 - `src/shared/AnimalHaus.Shared.Core`
 - `src/shared/AnimalHaus.Shared.Utils`
 - `src/shared/AnimalHaus.Shared.Messaging`
@@ -18,6 +19,8 @@ AnimalHaus is a distributed farm simulator example built on .NET 8 and ZeroMQ.
 ## System Overview
 
 Four independent .NET 8 processes communicate over ZeroMQ using PUB/SUB events (dashed arrows) and REQ/REP commands (solid arrows):
+
+You can use the cross-platform Avalonia `AdministrationApp` tool to manage endpoint configuration for these systems.
 
 ```mermaid
 flowchart LR

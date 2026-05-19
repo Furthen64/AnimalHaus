@@ -1,11 +1,17 @@
+using Avalonia;
+
 namespace AdministrationApp;
 
-static class Program
+internal static class Program
 {
     [STAThread]
-    static void Main()
+    public static void Main(string[] args)
     {
-        ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm());
+        BuildAvaloniaApp()
+            .StartWithClassicDesktopLifetime(args);
     }
+
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect();
 }
