@@ -270,9 +270,9 @@ public partial class MainWindow : Window
         return match.Success ? match.Groups["port"].Value : string.Empty;
     }
 
-    private static bool TryGetPort(string? input, out int port)
+    private static bool TryGetPort(string? portText, out int port)
     {
-        var isParsed = int.TryParse(input, out port);
+        var isParsed = int.TryParse(portText, out port);
         return isParsed && port is > 0 and <= 65535;
     }
 
