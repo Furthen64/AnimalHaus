@@ -15,6 +15,27 @@ AnimalHaus is a distributed farm simulator example built on .NET 8 and ZeroMQ.
 - `tests/AnimalHaus.Shared.Tests`
 - `tests/AnimalHaus.Integration.Tests`
 
+## System Overview
+
+Four independent .NET 8 processes communicate over ZeroMQ using PUB/SUB events (dashed arrows) and REQ/REP commands (solid arrows):
+
+```mermaid
+flowchart LR
+    MP([MarketPlace])
+    PP([Pigpen])
+    BA([Barn])
+    TR([Tractor])
+
+    PP -- RequestDispatch --> BA
+    BA -- AssignTask --> TR
+
+    BA -. DispatchCompleted / InventoryChanged .-> PP
+    TR -. TractorDispatched / TaskCompleted .-> PP
+    TR -. TaskCompleted / FuelLow .-> BA
+    PP -. PigFed / PigReadyForTransfer .-> BA
+    MP -. MarketPriceChanged .-> PP & BA & TR
+```
+
 ## Run
 
 ```bash
